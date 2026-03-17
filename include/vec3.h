@@ -1,9 +1,6 @@
 #ifndef RAYTRACING_VEC3_H
 #define RAYTRACING_VEC3_H
 
-#include <cmath>
-#include <iostream>
-
 struct vec3 {
     float e[3];
 

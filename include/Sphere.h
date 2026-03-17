@@ -2,8 +2,6 @@
 #define RAYTRACING_SPHERE_H
 
 #include "hittable.h"
-#include "vec3.h"
-
 
 class Sphere : public hittable {
 public:
