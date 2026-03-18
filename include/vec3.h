@@ -7,7 +7,7 @@ struct vec3 {
     real e[3];
 
     vec3() : e{0, 0, 0} { }
-    vec3(float e0, float e1, float e2) : e{e0, e1, e2} { }
+    vec3(real e0, real e1, real e2) : e{e0, e1, e2} { }
 
     real x() const { return e[0]; }
     real y() const { return e[1]; }
@@ -41,6 +41,16 @@ struct vec3 {
 
     real length_squared() const {
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+    }
+
+    static vec3 random() {
+        return vec3(random_real(), random_real(), random_real());
+    }
+
+    static vec3 random(const real min, const real max) {
+        return {random_real(min, max),
+                    random_real(min, max),
+                    random_real(min, max)};
     }
 };
 
@@ -88,6 +98,25 @@ inline vec3 cross(const vec3 &u, const vec3 &v) {
 
 inline vec3 unit_vector(const vec3 &v) {
     return v / v.length();
+}
+
+inline vec3 random_unit_vector() {
+    while (true) {
+        auto p = vec3::random(-1.0f, 1.0f);
+        auto lensq = p.length_squared();
+        if (1e-160 < lensq && lensq <= 1) {
+            return p / sqrt(lensq);
+        }
+    }
+}
+
+inline vec3 random_on_hemisphere(const vec3 &normal) {
+    vec3 on_unit_sphere = random_unit_vector();
+    if (dot(on_unit_sphere, normal) > 0.0f) {
+        return on_unit_sphere;
+    } else {
+        return -on_unit_sphere;
+    }
 }
 
 #endif //RAYTRACING_VEC3_H
