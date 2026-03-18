@@ -20,6 +20,12 @@ public:
         return min < x && x < max;
     }
 
+    float clamp(const float x) const {
+        if (x < min) return min;
+        if (x > max) return max;
+        return x;
+    }
+
     static const interval empty, universe;
 };
 

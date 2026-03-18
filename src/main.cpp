@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     Camera cam;
 
     cam.aspect_ratio    = 16.0f / 9.0f;
-    cam.image_width     = 400;
+    cam.image_width     = 1000;
 
     cam.render(world);
 

@@ -2,18 +2,32 @@
 #define RAYTRACING_UTILS_H
 
 #include <cmath>
+#include <random>
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <random>
 
 using std::make_shared;
 using std::shared_ptr;
 
+using real = float;
+
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
 
-inline double degrees_to_radians(double degrees) {
-    return degrees * pi / 180.0;
+inline real degrees_to_radians(real degrees) {
+    return static_cast<real>(degrees * pi / 180.0);
+}
+
+inline real random_real() {
+    static std::uniform_real_distribution<real> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline real random_real(const real min, const real max) {
+    return min + (max - min) * random_real();
 }
 
 /* Common Headers */
