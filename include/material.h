@@ -52,4 +52,24 @@ private:
     color albedo;
     real fuzz;
 };
+
+class dielectric : public material {
+public:
+    dielectric(real refraction_index) : refraction_index(refraction_index) {}
+    ~dielectric() override {}
+
+    bool scatter(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override {
+        attenuation = color(1.0, 1.0, 1.0);
+        const double ri = rec.front_face ? (1.0/refraction_index) : refraction_index;
+
+        const vec3 unit_direction = unit_vector(r_in.direction());
+        const vec3 refracted = refract(unit_direction, rec.normal, ri);
+
+        scattered = ray(rec.p, refracted);
+        return true;
+    }
+
+private:
+    real refraction_index;
+};
 #endif //RAYTRACING_MATERIAL_H

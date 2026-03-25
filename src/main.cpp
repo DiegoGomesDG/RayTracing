@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     hittable_list world;
 
     auto material_ground    = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto material_center    = make_shared<lambertian>(color(0.1, 0.2, 0.5));
+    auto material_center    = make_shared<dielectric>(1.50);
     auto material_left      = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
     auto material_right     = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
 
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     Camera cam;
 
     cam.aspect_ratio        = 16.0f / 9.0f;
-    cam.image_width         = 1080;
+    cam.image_width         = 1280;
     cam.samples_per_pixel   = 100;
     cam.max_depth           = 50;
 
