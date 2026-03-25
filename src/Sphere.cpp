@@ -1,9 +1,9 @@
 #include "Sphere.h"
 
-Sphere::Sphere(const point3 &center, float radius) {
+Sphere::Sphere(const point3 &center, float radius, shared_ptr<material> mat) {
     this->center = center;
     this->radius = std::fmax(0, radius);
-    // TODO: Init material pointer 'mat'
+    this->mat = mat;
 }
 
 bool Sphere::hit(const ray &ray, interval ray_t, hit_record &rec) const {

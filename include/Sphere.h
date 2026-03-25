@@ -5,7 +5,7 @@
 
 class Sphere : public hittable {
 public:
-    Sphere(const point3 &center, float radius);
+    Sphere(const point3 &center, float radius, shared_ptr<material> mat);
     bool hit(const ray &ray, interval ray_t, hit_record &rec) const override;
 
 private:
