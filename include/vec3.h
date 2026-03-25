@@ -49,8 +49,8 @@ struct vec3 {
 
     static vec3 random(const real min, const real max) {
         return {random_real(min, max),
-                    random_real(min, max),
-                    random_real(min, max)};
+                random_real(min, max),
+                random_real(min, max)};
     }
 };
 

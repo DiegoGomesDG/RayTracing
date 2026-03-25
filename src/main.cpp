@@ -8,7 +8,7 @@
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     hittable_list world;
 
@@ -24,10 +24,10 @@ int main(int argc, char *argv[]) {
 
     cam.render(world);
 
-    auto end = std::chrono::high_resolution_clock::now();
+    const auto end = std::chrono::high_resolution_clock::now();
 
     /* Compute duration in seconds */
-    std::chrono::duration<double> elapsed = end - start;
+    const std::chrono::duration<double> elapsed = end - start;
     std::cout << "Total Render Time: " << elapsed.count() << " seconds\n";
 
     return 0;
