@@ -33,6 +33,11 @@ target_include_directories(imgui PUBLIC
         thirdparty/imgui/backends
 )
 
+# Link GLFW and ImGui
+target_link_libraries(imgui
+        PUBLIC glfw glad
+)
+
 # Modules
 add_subdirectory(Core)
 add_subdirectory(RayTracing)
