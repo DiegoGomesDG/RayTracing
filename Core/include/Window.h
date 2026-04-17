@@ -13,12 +13,13 @@ namespace Core {
 
     struct WindowSettings {
         std::string title;
-        uint32_t width = 1280;
-        uint32_t height = 720;
-        bool isResizable = true;
-        bool VSync = true;
+        uint32_t    width       = 1280;
+        uint32_t    height      = 720;
+        bool        isResizable = true;
+        bool        VSync       = true;
 
         using EventCallbackFunction = std::function<void(Event&)>;
+        EventCallbackFunction event_callback;
     };
 
     class Window {
@@ -31,10 +32,14 @@ namespace Core {
 
         void update();
 
-        glm::vec2 getFramebufferSize() const;
-        glm::vec2 getMousePosition() const;
+        void raise_event(Event& event);
 
-        GLFWwindow* getHandle() const { return m_handle; }
+        glm::vec2 framebuffer_size() const;
+        glm::vec2 mouse_position() const;
+
+        bool should_close();
+
+        GLFWwindow* get_handle() const { return m_handle; }
     private:
         WindowSettings m_settings;
         GLFWwindow* m_handle = nullptr;

@@ -57,15 +57,25 @@ namespace Core {
         glfwSwapBuffers(m_handle);
     }
 
-    glm::vec2 Window::getFramebufferSize() const {
+    void Window::raise_event(Event &event) {
+        if (m_settings.event_callback) {
+            m_settings.event_callback(event);
+        }
+    }
+
+    glm::vec2 Window::framebuffer_size() const {
         int width, height;
         glfwGetWindowSize(m_handle, &width, &height);
         return {width, height};
     }
 
-    glm::vec2 Window::getMousePosition() const {
+    glm::vec2 Window::mouse_position() const {
         double x, y;
         glfwGetCursorPos(m_handle, &x, &y);
         return { static_cast<float>(x), static_cast<float>(y) };
+    }
+
+    bool Window::should_close() {
+        return glfwWindowShouldClose(m_handle);
     }
 }
