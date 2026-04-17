@@ -12,8 +12,8 @@ namespace Core {
         MouseButtonPressed, MouseButtonReleased, MoveMoved, MouseScrolled
     };
 
-    #define EVENT_CLASS_TYPE(type) static EventType get_event_type() { return EventType::type; }\
-        virtual EventType get_event_type() const override { return GetStaticType(); }\
+    #define EVENT_CLASS_TYPE(type) static EventType get_static_type() { return EventType::type; }\
+        virtual EventType get_event_type() const override { return get_static_type(); }\
         virtual const char* get_name() const override { return #type; }
 
     class Event {
@@ -36,7 +36,7 @@ namespace Core {
         template<typename T>
         bool dispatch(EventHandler<T> function) {
             if (m_event.get_event_type() == T::GetStaticType() && !m_event.handled) {
-                m_event.handled = function(*(T*)&m_event);
+                m_event.handled = function(*static_cast<T*>(&m_event));
                 return true;
             }
             return false;

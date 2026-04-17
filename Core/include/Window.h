@@ -47,6 +47,4 @@ namespace Core {
 
 }
 
-
-
 #endif //RAYTRACING_WINDOW_H
