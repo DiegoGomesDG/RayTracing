@@ -9,6 +9,14 @@ AppLayer::AppLayer() {
     init_scene();
 }
 
+AppLayer::~AppLayer() {
+    m_cancel_rendering = true;
+
+    if (m_render_thread.joinable()) {
+        m_render_thread.join();
+    }
+}
+
 void AppLayer::on_event(Core::Event &event) {
     // Layer::on_event(event);
 }
@@ -17,8 +25,7 @@ void AppLayer::on_update(float timestamp) {
     // Layer::on_update(timestamp);
 }
 
-void AppLayer::on_render()
-{
+void AppLayer::on_render() {
     ImGuiViewport* vp = ImGui::GetMainViewport();
 
     ImGui::SetNextWindowPos(vp->Pos);
@@ -30,7 +37,8 @@ void AppLayer::on_render()
         ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoBringToFrontOnFocus |
-        ImGuiWindowFlags_NoNavFocus;
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoSavedSettings;
 
     ImGui::Begin("Root", nullptr, flags);
 
@@ -42,6 +50,19 @@ void AppLayer::on_render()
     ImVec2 size;
     ImGui::BeginChild("Viewport", ImVec2(avail.x - sidebarWidth, avail.y), true);
     size = ImGui::GetContentRegionAvail();
+
+    std::lock_guard<std::mutex> lock(m_framebuffer_mutex);
+    if (!m_framebuffer.empty()) {
+        int width  = (int)size.x;
+        int height = (int)size.y;
+
+        if (!m_image) {
+            m_image = std::make_shared<Core::GLImage>(width, height);
+        } else if (m_image->get_width() != width || m_image->get_height() != height) {
+            m_image->resize(width, height);
+        }
+        m_image->set_data(m_framebuffer.data());
+    }
 
     if (m_image) {
         ImGui::Image(
@@ -60,12 +81,30 @@ void AppLayer::on_render()
     // Settings
     ImGui::BeginChild("Settings", ImVec2(sidebarWidth, avail.y), true);
 
-    ImGui::Text("Camera Settings");
+    if (ImGui::CollapsingHeader("Render##render_header")) {
+        ImGui::SliderInt("Samples", &m_camera.samples_per_pixel, 1, 500);
+        ImGui::SliderInt("Max Depth", &m_camera.max_depth, 1, 100);
+    }
 
-    ImGui::SliderInt("Samples", &m_camera.samples_per_pixel, 1, 500);
-    ImGui::SliderInt("Max Depth", &m_camera.max_depth, 1, 50);
+    if (ImGui::CollapsingHeader("Camera")) {
+        ImGui::Text("Transform");
 
-    if (ImGui::Button("Render")) {
+        ImGui::DragFloat3("Look From", &m_camera.lookfrom.e[0], 1.00f);
+        ImGui::DragFloat3("Look At", &m_camera.lookfrom.e[1], 1.00f);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        ImGui::Text("Lens");
+
+        auto vfov = static_cast<float>(m_camera.vfov);
+        if (ImGui::SliderFloat("Vertical FOV", &vfov, 1.0f, 179.0f, "%.1f")) {
+            m_camera.vfov = static_cast<real>(vfov);
+        }
+    }
+
+     if (ImGui::Button("Render##render_button")) {
         int width  = (int)size.x;
         int height = (int)size.y;
 
@@ -73,22 +112,40 @@ void AppLayer::on_render()
             return;
         }
 
-        m_camera.set_resolution(width, height);
+        start_render(width, height);
 
-        m_camera.render_to_buffer(m_world, m_framebuffer);
-
-        if (!m_image) {
-            m_image = std::make_shared<Core::GLImage>(width, height);
-        } else if (m_image->get_width() != width || m_image->get_height() != height) {
-            m_image->resize(width, height);
-        }
-
-        m_image->set_data(m_framebuffer.data());
     }
 
     ImGui::EndChild();
 
+    ImGui::ShowDemoWindow();
     ImGui::End();
+}
+
+void AppLayer::start_render(int width, int height) {
+
+    if (m_render_thread.joinable()) {
+        m_cancel_rendering = true;
+        m_render_thread.join();
+    }
+
+    m_cancel_rendering = false;
+    m_is_rendering = true;
+
+    m_render_thread = std::thread([this, width, height]() {
+        std::vector<uint32_t> local_buffer;
+
+        m_camera.set_resolution(width, height);
+        m_camera.render_to_buffer(m_world, local_buffer, m_cancel_rendering);
+
+        if (!m_cancel_rendering) {
+            std::lock_guard<std::mutex> lock(m_framebuffer_mutex);
+            m_framebuffer = std::move(local_buffer);
+        }
+
+        m_is_rendering = false;
+    });
+
 }
 
 void AppLayer::init_scene() {
@@ -97,31 +154,7 @@ void AppLayer::init_scene() {
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     m_world.add(make_shared<Sphere>(point3(0,-1000,0), 1000, ground_material));
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
-            auto choose_mat = random_real();
-            point3 center(a + 0.9*random_real(), 0.2, b + 0.9*random_real());
-            if ((center - point3(4, 0.2, 0)).length() > 0.9) {
-                shared_ptr<material> sphere_material;
-                if (choose_mat < 0.8) {
-                    // diffuse
-                    auto albedo = color::random() * color::random();
-                    sphere_material = make_shared<lambertian>(albedo);
-                    m_world.add(make_shared<Sphere>(center, 0.2, sphere_material));
-                } else if (choose_mat < 0.95) {
-                    // metal
-                    auto albedo = color::random(0.5, 1);
-                    auto fuzz = random_real(0, 0.5);
-                    sphere_material = make_shared<metal>(albedo, fuzz);
-                    m_world.add(make_shared<Sphere>(center, 0.2, sphere_material));
-                } else {
-                    // glass
-                    sphere_material = make_shared<dielectric>(1.5);
-                    m_world.add(make_shared<Sphere>(center, 0.2, sphere_material));
-                }
-            }
-        }
-    }
+
     auto material1 = make_shared<dielectric>(1.5);
     m_world.add(make_shared<Sphere>(point3(0, 1, 0), 1.0, material1));
     auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));

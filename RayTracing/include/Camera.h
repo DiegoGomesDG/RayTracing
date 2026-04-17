@@ -22,7 +22,7 @@ public:
     real    defocus_angle   = 0;
     real    focus_dist      = 10;
 
-    void set_resolution(const int width, const int height);
+    void    set_resolution(const int width, const int height);
 
     void    render(const hittable &world);
     void    print_progress(
@@ -34,7 +34,8 @@ public:
 
     void    render_to_buffer(
         const hittable& world,
-        std::vector<uint32_t>& framebuffer
+        std::vector<uint32_t>& framebuffer,
+        std::atomic<bool>& cancel_flag
     );
 
 private:

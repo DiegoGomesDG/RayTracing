@@ -31,7 +31,7 @@ void Camera::render(const hittable &world) {
     image.write_ppm(out);
 }
 
-void Camera::render_to_buffer(const hittable &world, std::vector<uint32_t> &framebuffer) {
+void Camera::render_to_buffer(const hittable &world, std::vector<uint32_t> &framebuffer, std::atomic<bool> &cancel_flag) {
     initialize();
     framebuffer.resize(image_width * image_height);
 
@@ -41,10 +41,13 @@ void Camera::render_to_buffer(const hittable &world, std::vector<uint32_t> &fram
     for (int j = 0; j < image_height; j++) {
         print_progress(j, image_height, start, smoothed_avg);
 
+        if (cancel_flag) return;
         for (int i = 0; i < image_width; i++) {
+            if (cancel_flag) return;
             color pixel_color(0, 0, 0);
 
             for (int sample = 0; sample < samples_per_pixel; sample++) {
+                if (cancel_flag) return;
                 ray r = get_ray(i, j);
                 pixel_color += ray_color(r, max_depth, world);
             }
