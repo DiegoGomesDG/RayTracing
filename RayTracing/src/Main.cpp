@@ -1,4 +1,3 @@
-
 #include "Application.h"
 #include "layers/AppLayer.h"
 
@@ -13,7 +12,6 @@ int main(int argc, char *argv[]) {
     Core::Application app(appSpec);
 
     app.push_layer<AppLayer>();
-
     app.run();
 
     return 0;
