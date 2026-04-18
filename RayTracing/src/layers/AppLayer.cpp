@@ -130,9 +130,9 @@ void AppLayer::on_render() {
     ImGui::ProgressBar(m_render_progress.load(), ImVec2(-1, 0));
 
     ImGui::Spacing();
-    if (eta > 0.1f) {
+    if (eta > 0.5f) {
         ImGui::Text("ETA: %.1f s", eta);
-    } else if (eta < 0.1f && !m_framebuffer.empty()) {
+    } else if (eta <= 0.5f && !m_framebuffer.empty()) {
         ImGui::Text("Completed");
     } else {
         ImGui::Text("Render not started");
