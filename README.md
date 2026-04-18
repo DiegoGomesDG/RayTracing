@@ -72,7 +72,7 @@ In addition, this project is designed as a modular and extensible application, a
 
 > Note: This project is currently developed for macOS, using OpenGL 3.3 for better compatibility (as newer OpenGL versions are deprecated on macOS).
 
-### ⚙️ Installation (using vcpkg + CMake)
+### ⚙️ Installation (CMake)
 
 1. Clone the repository (with submodules)
    ```sh
