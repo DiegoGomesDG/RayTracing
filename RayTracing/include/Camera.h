@@ -2,6 +2,7 @@
 #define RAYTRACING_CAMERA_H
 
 #include <fstream>
+#include <chrono>
 
 #include "hittable.h"
 #include "utils.h"
