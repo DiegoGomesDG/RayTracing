@@ -103,7 +103,6 @@ namespace Core {
     void Application::raise_event(Event &event) {
         for (auto& layer : std::views::reverse(m_layer_stack)) {
             layer->on_event(event);
-
         }
     }
 

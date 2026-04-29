@@ -42,7 +42,7 @@ void AppLayer::on_render() {
 
     ImGui::Begin("Root", nullptr, flags);
 
-    float sidebarWidth = 320.0f;
+    float sidebarWidth = 340.0f;
     ImVec2 avail = ImGui::GetContentRegionAvail();
 
     // Left: Viewport
@@ -52,8 +52,8 @@ void AppLayer::on_render() {
 
     std::lock_guard<std::mutex> lock(m_framebuffer_mutex);
     if (!m_framebuffer.empty()) {
-        int width  = (int)size.x;
-        int height = (int)size.y;
+        int width  = static_cast<int>(size.x);
+        int height = static_cast<int>(size.y);
 
         if (!m_image) {
             m_image = std::make_shared<Core::GLImage>(width, height);
@@ -88,6 +88,13 @@ void AppLayer::on_render() {
     if (ImGui::CollapsingHeader("Render##render_header")) {
         ImGui::SliderInt("Samples", &m_camera.samples_per_pixel, 1, 500);
         ImGui::SliderInt("Max Depth", &m_camera.max_depth, 1, 100);
+
+        const char* items[] = { "Shaded", "Normals" };
+        static int mode = 0;
+
+        if (ImGui::Combo("Render Mode", &mode, items, IM_ARRAYSIZE(items))) {
+            m_camera.render_mode = (mode == 1) ? Camera::RenderMode::Normals : Camera::RenderMode::Shaded;
+        }
     }
 
     if (ImGui::CollapsingHeader("Camera")) {
@@ -101,6 +108,8 @@ void AppLayer::on_render() {
         }
 
         ImGui::SliderFloat("Focal Distance", &m_camera.focus_dist, 1.00f, 200.0f, "%.1f");
+
+
     }
     ImGui::EndChild();
 

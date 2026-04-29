@@ -181,6 +181,11 @@ color Camera::ray_color(const ray &r, int depth, const hittable &world) const {
 
     hit_record rec;
     if (world.hit(r, interval(0.001, infinity), rec)) {
+        if (render_mode == RenderMode::Normals) {
+            vec3 N = rec.normal;
+            return 0.5f * color(N.x() + 1, N.y() + 1, N.z() + 1);
+        }
+
         ray scattered;
         color attenuation;
         if (rec.mat->scatter(r, rec, attenuation, scattered)) {

@@ -41,6 +41,13 @@ public:
 
     void set_progress_callback(std::function<void(float)> cb) { progress_callback = cb; }
 
+    enum class RenderMode {
+        Shaded,
+        Normals
+    };
+
+    RenderMode render_mode = RenderMode::Shaded;
+
 private:
     real    pixel_samples_scale;            // Color scale factor for a sum of pixel samples
     point3  center;                         // Camera center

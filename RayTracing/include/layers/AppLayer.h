@@ -12,7 +12,6 @@
 #include "Camera.h"
 #include "hittable_list.h"
 
-
 class AppLayer : public Core::Layer{
 public:
     AppLayer();
