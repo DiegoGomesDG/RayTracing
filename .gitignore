@@ -4,3 +4,5 @@ cmake-build-debug
 image.ppm
 images
 cmake-build-release
+/.vs
+/CMakeSettings.json
